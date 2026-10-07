@@ -1,0 +1,26 @@
+<section id="causes" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Why it happens</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Long-tail knowledge</h3>
+<p style="font-size:28px;line-height:1.4">Accuracy tracks how often related documents appeared in pre-training. Rare genes and compounds suffer most.</p>
+<p style="font-size:24px;color:#57606A">Kandpal et al. 2023, ICML</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Guessing is rewarded</h3>
+<p style="font-size:28px;line-height:1.4">Training and benchmark scoring reward a guess over “I don’t know”.</p>
+<p style="font-size:24px;color:#57606A">Kalai et al. 2025</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Sycophancy</h3>
+<p style="font-size:28px;line-height:1.4">Assistants tend to agree with the view stated in the prompt. Keep your hypothesis out of the question.</p>
+<p style="font-size:24px;color:#57606A">Sharma et al. 2024, ICLR</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Snowballing</h3>
+<p style="font-size:28px;line-height:1.4">Models defend early errors, yet ChatGPT and GPT-4 recognised 67% and 87% of their own mistakes when asked separately.</p>
+<p style="font-size:24px;color:#57606A">Zhang et al. 2024, ICML</p>
+</div>
+</div>
+<aside>Four well-supported causes. The long tail matters most for us: research questions are about rare entities by definition. Sycophancy is the practical one to remember: if you write "explain why X causes Y", the model will usually explain why, whether or not it is true.</aside>
+</section>

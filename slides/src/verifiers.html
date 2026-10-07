@@ -1,0 +1,16 @@
+<section id="verifiers" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Verifiers need verifying too</h2>
+<p style="font-size:36px;line-height:1.4;color:#57606A">A UniProt search for the gene <span style="color:#1B1F24">HTT</span> returns two reviewed human entries:</p>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:44px;border:2px solid #0B5CAD;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600">Huntingtin</h3>
+<p style="font-size:30px;line-height:1.4">P42858 · official symbol HTT · 3,142 aa</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600">Serotonin transporter</h3>
+<p style="font-size:30px;line-height:1.4">P31645 · official symbol SLC6A4 · synonym HTT · 630 aa</p>
+</div>
+</div>
+<p style="font-size:36px;line-height:1.4">Taking the first hit marks a correct answer as wrong. <b>Match on the official symbol or the accession.</b></p>
+<aside>This happened while building the workshop: an early version of the checker took the first UniProt hit and reported the correct huntingtin length as wrong. Gene symbols are ambiguous; accessions are not.</aside>
+</section>

@@ -1,0 +1,14 @@
+<section id="toolbox" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Part 2 · Mitigation</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Five levers, cheapest first</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:24%;text-align:left">Lever</th><th style="width:40%;text-align:left">What it means</th><th style="width:36%;text-align:left">Example</th></tr>
+<tr><td>Ask better</td><td>identifiers, JSON, “null if unsure”, neutral wording</td><td>Demo 2 prompt</td></tr>
+<tr><td>Ground</td><td>give the source text, demand exact quotes</td><td>RAG (Lewis et al. 2020); Demo 4</td></tr>
+<tr><td>Use tools</td><td>let the model query databases</td><td>GeneGPT; ChemCrow</td></tr>
+<tr><td>Measure uncertainty</td><td>sample several answers; disagreement is a warning</td><td>SelfCheckGPT; semantic entropy</td></tr>
+<tr><td>Verify</td><td>check every claim against a curated source</td><td>this notebook</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Lewis 2020 · Jin 2024 · M. Bran 2024 · Manakul 2023 · Farquhar 2024 · full list in references.md</p>
+<aside>The levers stack. Asking better costs nothing. Grounding and tools change where facts come from. Uncertainty measures tell you where to look. Verification is the final gate and is never optional for facts that go into a paper.</aside>
+</section>

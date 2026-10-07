@@ -1,9 +1,8 @@
-# References (verified 2026-10-07)
+# References
 
-**How these were checked.** Every DOI was resolved via the Crossref API (title, year, and first author matched) using
-`plausible.literature.check_reference`, the same code participants use in Demo 1. Every arXiv ID was checked via the arXiv API
-(title and authors). Every number quoted in the slides was read from the paper's abstract (PubMed or arXiv). Venues for
-arXiv-listed papers are the conference versions.
+Checked on 7 October 2026. Every DOI was resolved via the Crossref API (title, year and first author), using the same
+code as Demo 1 (`plausible.literature.check_reference`). Every arXiv ID was checked via the arXiv API. Every number
+quoted in the workshop comes from the paper's abstract.
 
 ## Hallucination: evidence and causes
 - Ji, Z. et al. (2023). Survey of Hallucination in Natural Language Generation. *ACM Computing Surveys*. https://doi.org/10.1145/3571730
@@ -34,6 +33,12 @@ arXiv-listed papers are the conference versions.
 - Jumper, J. et al. (2021). Highly accurate protein structure prediction with AlphaFold. *Nature*. https://doi.org/10.1038/s41586-021-03819-2 (used in Demo 1)
 - Altschul, S. F. et al. (1990). Basic local alignment search tool. *J Mol Biol*. https://doi.org/10.1016/S0022-2836(05)80360-2 (PMID 2231712; used in Demo 1)
 
+## Tools mentioned in the tools list
+- Abramson, J. et al. (2024). Accurate structure prediction of biomolecular interactions with AlphaFold 3. *Nature*. https://doi.org/10.1038/s41586-024-07487-w
+- Mirdita, M. et al. (2022). ColabFold: making protein folding accessible to all. *Nature Methods*. https://doi.org/10.1038/s41592-022-01488-1
+- Dauparas, J. et al. (2022). Robust deep learning–based protein sequence design using ProteinMPNN. *Science*. https://doi.org/10.1126/science.add2187
+- Watson, J. L. et al. (2023). De novo design of protein structure and function with RFdiffusion. *Nature*. https://doi.org/10.1038/s41586-023-06415-8
+
 ## Knowledge graphs
 - Pan, S. et al. (2024). Unifying Large Language Models and Knowledge Graphs: A Roadmap. *IEEE TKDE*. https://doi.org/10.1109/TKDE.2024.3352100
 - Waagmeester, A. et al. (2020). Wikidata as a knowledge graph for the life sciences. *eLife*. https://doi.org/10.7554/eLife.52614
@@ -53,7 +58,14 @@ arXiv-listed papers are the conference versions.
 - Beniwal, H. & Singh, M. (2026). Where Does Toxicity Live? Mechanistic Localization and Targeted Suppression in Language Models. Preprint, arXiv:2605.27997
 - Beniwal, H., Kim, Y., Sap, M., Dan, S. & Hartvigsen, T. (2025). Breaking mBad! Supervised Fine-tuning for Cross-Lingual Detoxification. MELT Workshop @ COLM 2025. arXiv:2505.16722
 - Shah, A., Beniwal, H., Singh, M. & Silpasuwanchai, C. (2026). Sycophancy as a Multilingual Alignment Failure: How Safety Degrades Across Languages, Topics, and Models. Preprint, arXiv:2606.08451
-- Beniwal, H. & Färber, M. (2026). From Universal Knowledge Graphs to Contextual Semantic Contracts. ISWC 2026 (accepted; PDF not yet public, so content not summarised here).
+- Beniwal, H. & Färber, M. (2026). From Universal Knowledge Graphs to Contextual Semantic Contracts. ISWC 2026.
+
+## Policies and guidelines
+- European Commission, ERA Forum (2026). Living guidelines on the responsible use of generative AI in research, third version. https://research-and-innovation.ec.europa.eu/document/2b6cf7e5-36ac-41cb-aab5-0d32050143dc_en
+- DFG (2023). Statement by the Executive Committee on the influence of generative models of text and image creation on science and the humanities and on the DFG's funding activities. https://www.dfg.de/download/pdf/dfg_im_profil/geschaeftsstelle/publikationen/stellungnahmen_papiere/2023/230921_statement_executive_committee_ki_ai.pdf
+- DFG (2026). Leitlinie zur Nutzung von Künstlicher Intelligenz in der Begutachtung, Vordruck 4.04 (03/26). https://www.dfg.de/resource/blob/387664/4-04-de.pdf
+- ICMJE. AI use by authors. https://www.icmje.org/recommendations/browse/artificial-intelligence/ai-use-by-authors.html
+- Regulation (EU) 2016/679 (GDPR), Article 9. https://gdpr-info.eu/art-9-gdpr/
 
 ## Data sources used live in the demos
 Crossref · PubMed / NCBI Gene (NCBI E-utilities) · UniProtKB REST · PubChem PUG-REST · Wikidata Query Service · openFDA drug label API.

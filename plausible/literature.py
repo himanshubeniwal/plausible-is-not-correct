@@ -112,12 +112,16 @@ def check_reference(ref: dict, min_title_sim: float = 0.85) -> dict:
         record = pubmed_summary(ref["pmid"])
         source = "PubMed"
     else:
+        title = ref.get("title") or ""
         # all longer title words as [ti] terms; punctuation breaks exact-phrase search
-        words = [w for w in re.sub(r"[^A-Za-z0-9 ]", " ", ref["title"]).split() if len(w) > 3]
+        words = [w for w in re.sub(r"[^A-Za-z0-9 ]", " ", title).split() if len(w) > 3]
+        if not words:
+            out.update(verdict="UNVERIFIABLE", matched=None, notes="no identifier and no usable title")
+            return out
         hits = pubmed_search(" AND ".join(f"{w}[ti]" for w in words), retmax=5)
         for pmid in hits:
             cand = pubmed_summary(pmid)
-            if cand and title_similarity(cand["title"], ref["title"]) >= min_title_sim:
+            if cand and title_similarity(cand["title"], title) >= min_title_sim:
                 out.update(verdict="FOUND_BY_TITLE", matched=cand, notes=f"PMID {pmid}")
                 return out
         out.update(verdict="UNVERIFIABLE", matched=None,

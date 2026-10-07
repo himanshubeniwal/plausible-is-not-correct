@@ -1,0 +1,17 @@
+<section id="reasoning" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Reasoning helps, but it is not an explanation</h2>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600;color:#0B5CAD">Helps</h3>
+<p style="font-size:30px;line-height:1.4">Step-by-step prompting improves multi-step tasks. Majority voting over several reasoning paths helps further.</p>
+<p style="font-size:24px;color:#57606A">Wei et al. 2022 · Wang et al. 2023</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600;color:#B54708">But</h3>
+<p style="font-size:30px;line-height:1.4">With inputs biased toward wrong answers, models wrote plausible rationales without mentioning the bias. Accuracy fell by up to 36%.</p>
+<p style="font-size:24px;color:#57606A">Turpin et al. 2023, NeurIPS</p>
+</div>
+</div>
+<p style="font-size:36px;line-height:1.4">Treat written reasoning as a <b>draft argument to check</b>. Never accept “are you sure?” as verification.</p>
+<aside>Chain-of-thought is useful for performance. But the text is not a faithful log of the computation. Asking the same model "are you sure?" invites it to flip because of sycophancy or to double down because of snowballing.</aside>
+</section>

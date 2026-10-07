@@ -21,6 +21,9 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 USER_AGENT = "PlausibleIsNotCorrect-Workshop/1.0 (educational; python-requests)"
 
+TIMEOUT = 60   # seconds per request
+RETRIES = 4    # attempts per request, with exponential back-off
+
 # NCBI allows 3 requests/second without an API key; we stay below that.
 _MIN_INTERVAL = {"eutils.ncbi.nlm.nih.gov": 0.4}
 _last_call: dict[str, float] = {}
@@ -60,12 +63,30 @@ def fetch(url: str, params: dict | None = None, data: dict | None = None,
         cached = json.loads(path.read_text())
         return cached["body"]
     if offline():
-        raise RuntimeError(f"Offline mode and no cached response for {url} {params or ''}")
+        raise RuntimeError("PLAUSIBLE_OFFLINE=1 is set, but this request is not in the cache "
+                           f"(only the prepared examples are cached): {url} {params or ''}")
 
-    _throttle(url)
     h = {"User-Agent": USER_AGENT}
     h.update(headers or {})
-    resp = requests.request(method, url, params=params, data=data, headers=h, timeout=30)
+    resp, last_error = None, None
+    for attempt in range(RETRIES):
+        _throttle(url)
+        try:
+            resp = requests.request(method, url, params=params, data=data, headers=h, timeout=TIMEOUT)
+        except (requests.ConnectionError, requests.Timeout) as e:
+            last_error, resp = e, None
+        else:
+            if resp.status_code not in (429, 500, 502, 503, 504):
+                break
+            last_error = f"HTTP {resp.status_code}"
+        if attempt < RETRIES - 1:
+            time.sleep(2 ** attempt)      # 1 s, 2 s, 4 s
+    if resp is None or resp.status_code in (429, 500, 502, 503, 504):
+        host = url.split("/")[2]
+        raise RuntimeError(
+            f"{host} did not respond after {RETRIES} attempts ({last_error}). "
+            "Check your internet connection, or set os.environ['PLAUSIBLE_OFFLINE'] = '1' "
+            "to use the cached answers for the prepared examples.")
     if resp.status_code in (400, 404):
         body = None
     else:

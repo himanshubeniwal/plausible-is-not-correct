@@ -1,0 +1,16 @@
+<section id="lookup" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Lookup beats recall</h2>
+<div style="display:flex;gap:96px;align-items:flex-end">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:200px;font-weight:700;line-height:1;color:#6E7781">0.12</p>
+<p style="font-size:32px;color:#57606A">ChatGPT, answering from memory</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:200px;font-weight:700;line-height:1;color:#0B5CAD">0.83</p>
+<p style="font-size:32px;color:#57606A">GeneGPT, calling NCBI Web APIs</p>
+</div>
+</div>
+<p style="font-size:36px;line-height:1.4;width:1500px">Average score on the GeneTuring genomics benchmark. The gain comes from <b>querying a database</b> instead of recalling.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Jin et al. 2024, GeneGPT, Bioinformatics, doi:10.1093/bioinformatics/btae075</p>
+<aside>Same benchmark, same class of model. Allowing the model to call NCBI E-utilities moved the average from 0.12 to 0.83. The lesson is not to use GeneGPT specifically; it is that database lookup beats model memory for facts.</aside>
+</section>

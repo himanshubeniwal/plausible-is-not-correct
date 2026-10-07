@@ -1,51 +1,78 @@
 # Plausible Is Not Correct: Reliable LLM Use in Scientific Research
-Hands-on workshop · 22nd Herbstseminar of the Leipzig Bioinformatics & Computational EvoDevo groups (Doubice, 4–9 Oct 2026)
-Himanshu Beniwal · ScaDS.AI / TU Dresden
 
-**One idea runs through the whole workshop: the LLM proposes, a curated database decides.** Every demo turns an LLM answer
-into checkable claims and checks them against Crossref, PubMed, NCBI Gene, UniProt, PubChem, Wikidata, or openFDA.
+Hands-on workshop for bioinformatics and cheminformatics researchers · 22nd Herbstseminar of the Leipzig Bioinformatics
+and Computational EvoDevo groups (Doubice, CZ, October 2026) · **Himanshu Beniwal**, ScaDS.AI / TU Dresden
 
-## What's here
+> **The LLM proposes. A curated database decides.**
+> Every demo turns an LLM answer into checkable claims and checks them against Crossref, PubMed, NCBI Gene, UniProt,
+> PubChem, Wikidata and openFDA. No deep computer-science background is required.
 
-| File | For whom | What |
-|---|---|---|
-| [`01_facilitator_guide.md`](01_facilitator_guide.md) | presenter | 90-min agenda, slide-by-slide content, speaker notes, 60/120-min variants, pre-flight checklist |
-| [`02_participant_handout.md`](02_participant_handout.md) | participants | checklist, prompt patterns, API table, methods-section template |
-| [`references.md`](references.md) | everyone | every cited paper, with DOI/arXiv ID, checked on 2026-10-07 |
-| [`notebooks/workshop_demos.ipynb`](notebooks/workshop_demos.ipynb) | everyone | the 6 hands-on demos |
-| [`notebooks/workshop_demos_executed.ipynb`](notebooks/workshop_demos_executed.ipynb) | presenter | same notebook with pre-run outputs (LLM cells skipped) as a fallback |
-| [`notebooks/build_notebook.py`](notebooks/build_notebook.py) | maintainer | regenerates the notebook from source |
-| [`plausible/`](plausible/) | everyone | small, readable verification helpers used by the notebook |
-| `data/cache/` | — | cached real API responses, so database checks run offline |
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/himanshubeniwal/plausible-is-not-correct/blob/main/notebooks/workshop_demos.ipynb)
 
-## Setup
+## Materials
+
+| | |
+|---|---|
+| **Slides** | [slides/plausible-is-not-correct.pdf](slides/plausible-is-not-correct.pdf) |
+| **Workshop notes** | [01_workshop_notes.md](01_workshop_notes.md): the full content, with all demo results |
+| **Cheat sheet** | [02_cheat_sheet.md](02_cheat_sheet.md): seven rules, prompt templates, database APIs |
+| **AI research guidelines** | [03_ai_research_guidelines.md](03_ai_research_guidelines.md): prompting, tool choice, data protection, authorship, DFG/EU rules |
+| **Tools** | [04_tools.md](04_tools.md): curated AI and database tools for bio- and cheminformatics |
+| **References** | [references.md](references.md): every cited paper and policy, with DOI or link |
+| **Notebook** | [notebooks/workshop_demos.ipynb](notebooks/workshop_demos.ipynb): six hands-on demos |
+
+## Run the notebook
+
+**Option A: Google Colab (nothing to install).** Click the badge above, then *Runtime → Run all*.
+
+**Option B: on your computer** (Python 3.9 or newer):
+```bash
+git clone https://github.com/himanshubeniwal/plausible-is-not-correct.git
+```
+```bash
+cd plausible-is-not-correct
+```
 ```bash
 pip install -r requirements.txt
 ```
 ```bash
-cd notebooks && jupyter lab workshop_demos.ipynb
+jupyter lab notebooks/workshop_demos.ipynb
 ```
-`rdkit` (local SMILES parsing) and `anthropic` (live Claude calls) are optional. Without RDKit, structures are checked through PubChem.
+Optional extras: `pip install -r requirements-optional.txt` adds RDKit (local SMILES parsing) and the Anthropic SDK
+(live Claude calls; Python 3.10 or newer).
 
-## LLM backends (`PLAUSIBLE_LLM`)
-- `anthropic`: the default when `ANTHROPIC_API_KEY` is set. Model: `PLAUSIBLE_MODEL` (default `claude-opus-5-5`; set
-  `claude-haiku-5-5` for a cheaper run). Requests on Opus/Sonnet enable server-side refusal fallback. Occasionally a biology
-  question can trip a safety classifier, and the notebook then prints `[MODEL DECLINED THIS REQUEST]`.
-- `manual`: the default without a key. Each prompt is printed; paste it into **any** chatbot and paste the answer back,
-  ending with a line `END`. This lets participants use whatever assistant they already have.
-- `off`: skip LLM calls. All verification demos with constructed examples still run.
+### The six demos
 
-## Offline
-```bash
-export PLAUSIBLE_OFFLINE=1
+| # | Demo | Ground truth |
+|---|---|---|
+| 1 | Are these references real? | Crossref, PubMed |
+| 2 | Gene and protein facts | NCBI Gene, UniProtKB |
+| 3 | Molecules and SMILES | PubChem, RDKit |
+| 4 | Quote-grounded extraction from an abstract | the abstract |
+| 5 | Knowledge graphs: supported, missing, or wrong | Wikidata, openFDA |
+| 6 | Self-consistency and multilingual consistency | UniProtKB, NCBI Gene |
+
+### LLM cells: three modes
+| Mode | When | What happens |
+|---|---|---|
+| `manual` | default without an API key | the cell prints a prompt; paste it into any chatbot, paste the answer back, finish with a line `END` |
+| `anthropic` | default when `ANTHROPIC_API_KEY` is set | calls Claude (`claude-opus-5-5`; change with `PLAUSIBLE_MODEL`) |
+| `off` | set `PLAUSIBLE_LLM=off` | skips LLM cells; all prepared verification examples still run |
+
+### Offline use
+Database answers for all prepared examples ship in `data/cache/`. Set `PLAUSIBLE_OFFLINE=1` to use only the cache. Your own
+live-LLM questions need internet for verification.
+
+## Repository layout
+```text
+plausible/            verification helpers (literature, bio, chem, grounding, kg, llm)
+notebooks/            workshop notebook, a pre-run copy, and the script that builds the notebook
+data/cache/           cached database responses (offline mode)
+slides/               slide deck (PDF), its HTML source (src/), and build_pdf.py
 ```
-Database answers then come only from `data/cache/`. The whole notebook runs offline with `PLAUSIBLE_LLM=off`. Live-LLM
-cells produce new questions that are not in the cache, so their verification needs internet.
 
-## What was tested (2026-10-07)
-- The notebook executes end-to-end with **0 errors**, online and with `PLAUSIBLE_OFFLINE=1` (LLM backend `off`).
-- The chemistry checks give identical verdicts with RDKit 2025.09 and via the PubChem fallback.
-- The Anthropic call path was exercised up to authentication (SDK 1.12 accepted the request; a valid key was not available
-  here). **Run the live cells once with your key before the session.**
-- Live Wikidata content can change. Demo 5's narration reflects the state on 2026-10-07 (imatinib: AML listed, CML not
-  listed). The openFDA cell re-checks the label live.
+## Tested
+From a fresh clone, the notebook runs end-to-end without errors on Python 3.9 (with RDKit) and Python 3.12 (with and without RDKit), online and offline, and on Python 3.12 with an empty cache, so every database query ran live. The live-LLM cells were tested with deliberately messy chatbot answers (extra prose, renamed keys, missing values, unknown genes, “1,480 aa”, Devanagari digits).
+
+## Contact
+Himanshu Beniwal · https://himanshubeniwal.github.io

@@ -1,0 +1,15 @@
+<section id="demo2" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 2 · NCBI Gene, UniProtKB</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Gene and protein facts</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:38%;text-align:left">Claim</th><th style="width:40%;text-align:left">Database</th><th style="width:22%;text-align:left">Verdict</th></tr>
+<tr><td>TP53 protein: 393 aa</td><td>UniProt P04637: 393</td><td>supported</td></tr>
+<tr><td>CFTR protein: 1480 aa</td><td>UniProt P13569: 1480</td><td>supported</td></tr>
+<tr><td>EGFR protein: 1210 aa</td><td>UniProt P00533: 1210</td><td>supported</td></tr>
+<tr><td>BRCA1 on chromosome 13</td><td>NCBI Gene 672: 17q21.31</td><td><span style="color:#B54708">contradicted</span></td></tr>
+<tr><td>HBB on chromosome 11</td><td>NCBI Gene 3043: 11p15.4</td><td>supported</td></tr>
+<tr><td>DMD on chromosome Y</td><td>NCBI Gene 1756: Xp21.2-p21.1</td><td><span style="color:#B54708">contradicted</span></td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Ask for <b>JSON</b> and <b>identifiers</b>: verification becomes a loop, not a reading exercise.</p>
+<aside>Constructed claims first, then the live cell where the model returns JSON for eight genes. Allowing null is a feature: count abstentions separately from errors. Note that "canonical isoform" is a UniProt convention, so an under-specified question can look like an error.</aside>
+</section>

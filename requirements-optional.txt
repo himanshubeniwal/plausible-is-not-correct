@@ -1,0 +1,3 @@
+# Optional extras for the notebook
+rdkit>=2023.9                                   # local SMILES parsing (otherwise PubChem is used)
+anthropic>=1.0; python_version >= "3.10"        # live Claude calls (otherwise paste answers from any chatbot)

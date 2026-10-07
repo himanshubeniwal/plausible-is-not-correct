@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Plausible Is Not Correct</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #FFFFFF; }
+  section { position: relative; box-sizing: border-box; width: 1920px; height: 1080px;
+             overflow: hidden; page-break-after: always; break-after: page; }
+  section h1, section h2, section h3, section p, section ul, section ol, section hr { margin: 0; }
+  section hr { border: 0; }
+  section table { border-collapse: collapse; width: 100%; }
+  section th, section td { padding: 0.35em 0.6em; border-bottom: 1px solid #D0D7DE; vertical-align: top; }
+  section th { border-bottom: 2px solid #1B1F24; }
+  aside { display: none; }
+</style></head><body>
+<section id="cover" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<p style="font-size:28px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Hands-on workshop · Herbstseminar 2026</p>
+<h1 style="font-size:120px;font-weight:700;line-height:1.05;color:#1B1F24">Plausible Is Not Correct</h1>
+<p style="font-size:48px;line-height:1.3;color:#57606A;width:1400px">Reliable LLM use in bioinformatics and cheminformatics research</p>
+<hr style="width:160px;border-top:4px solid #0B5CAD">
+<p style="font-size:36px;font-weight:600;color:#1B1F24">Himanshu Beniwal</p>
+<p style="font-size:28px;color:#57606A">ScaDS.AI / TU Dresden · github.com/himanshubeniwal/plausible-is-not-correct</p>
+<aside>Welcome. This workshop is about one habit: never trust a fluent answer you have not checked. Everything shown today is in the public repository, including the notebook, which runs in Google Colab without installation.</aside>
+</section>
+
+<section id="idea" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:48px">
+<p style="font-size:28px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">The one idea</p>
+<h2 style="font-size:96px;font-weight:700;line-height:1.1;color:#1B1F24">The LLM proposes.<br><span style="color:#0B5CAD">A curated database decides.</span></h2>
+<p style="font-size:36px;line-height:1.4;color:#57606A;width:1500px">Every demo today turns an LLM answer into checkable claims and checks them against Crossref, PubMed, NCBI Gene, UniProt, PubChem, Wikidata or openFDA.</p>
+<aside>This is the sentence to remember. Language models are excellent at proposing: drafting, summarising, suggesting. Curated, versioned databases are where facts are decided. The workshop is about wiring those two together.</aside>
+</section>
+
+<section id="llm" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Part 1 · Why plausible ≠ correct</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">What a language model does</h2>
+<div style="display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;gap:40px;align-items:baseline"><p style="font-size:56px;font-weight:700;color:#0B5CAD;width:80px">1</p><p style="font-size:40px;line-height:1.3;width:1500px">It continues text with <b>likely</b> next tokens, learned from its training data.</p></div>
+<div style="display:flex;gap:40px;align-items:baseline"><p style="font-size:56px;font-weight:700;color:#0B5CAD;width:80px">2</p><p style="font-size:40px;line-height:1.3;width:1500px">By default it does <b>not look anything up</b>.</p></div>
+<div style="display:flex;gap:40px;align-items:baseline"><p style="font-size:56px;font-weight:700;color:#0B5CAD;width:80px">3</p><p style="font-size:40px;line-height:1.3;width:1500px">Right and wrong answers come out <b>equally fluent</b>. Fluency is not evidence.</p></div>
+</div>
+<aside>No computer science needed. A model that has read millions of methods sections can write a convincing one for an experiment that never happened. Fluency and correctness are produced by the same machinery, so fluency cannot tell you whether an answer is correct.</aside>
+</section>
+
+<section id="errors" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Two kinds of error</h2>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;padding:48px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:44px;font-weight:600;color:#0B5CAD">Factuality</h3>
+<p style="font-size:32px;line-height:1.4;color:#57606A">The output conflicts with world knowledge.</p>
+<p style="font-size:32px;line-height:1.4">“BRCA1 is on chromosome 13.” It is on 17; <i>BRCA2</i> is on 13.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;padding:48px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:44px;font-weight:600;color:#0B5CAD">Faithfulness</h3>
+<p style="font-size:32px;line-height:1.4;color:#57606A">The output does not follow the given source or instruction.</p>
+<p style="font-size:32px;line-height:1.4">A summary that adds a number the abstract does not contain.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Huang et al. 2025, ACM TOIS · Ji et al. 2023, ACM Computing Surveys</p>
+<aside>Both matter in research. Faithfulness errors are especially dangerous in literature work and data extraction, because the source is right there and we assume the model used it.</aside>
+</section>
+
+<section id="causes" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Why it happens</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Long-tail knowledge</h3>
+<p style="font-size:28px;line-height:1.4">Accuracy tracks how often related documents appeared in pre-training. Rare genes and compounds suffer most.</p>
+<p style="font-size:24px;color:#57606A">Kandpal et al. 2023, ICML</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Guessing is rewarded</h3>
+<p style="font-size:28px;line-height:1.4">Training and benchmark scoring reward a guess over “I don’t know”.</p>
+<p style="font-size:24px;color:#57606A">Kalai et al. 2025</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Sycophancy</h3>
+<p style="font-size:28px;line-height:1.4">Assistants tend to agree with the view stated in the prompt. Keep your hypothesis out of the question.</p>
+<p style="font-size:24px;color:#57606A">Sharma et al. 2024, ICLR</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:36px;font-weight:600;color:#0B5CAD">Snowballing</h3>
+<p style="font-size:28px;line-height:1.4">Models defend early errors, yet ChatGPT and GPT-4 recognised 67% and 87% of their own mistakes when asked separately.</p>
+<p style="font-size:24px;color:#57606A">Zhang et al. 2024, ICML</p>
+</div>
+</div>
+<aside>Four well-supported causes. The long tail matters most for us: research questions are about rare entities by definition. Sycophancy is the practical one to remember: if you write "explain why X causes Y", the model will usually explain why, whether or not it is true.</aside>
+</section>
+
+<section id="evidence" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">The evidence</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:30%;text-align:left">Failure</th><th style="width:70%;text-align:left">Finding</th></tr>
+<tr><td>Fabricated references</td><td>55% of GPT-3.5 and 18% of GPT-4 citations fabricated (Walters &amp; Wilder 2023, Sci Rep)</td></tr>
+<tr><td>…still in 2026</td><td>ChatGPT-5: 7.13% of 2,736 references fabricated; 49.34% fully accurate (Bernstein et al. 2026, Cureus)</td></tr>
+<tr><td>Atomic facts</td><td>ChatGPT: 58% of atomic facts in biographies supported (FActScore; Min et al. 2023, EMNLP)</td></tr>
+<tr><td>Invented packages</td><td>≥5.2% (commercial) and 21.7% (open-source) hallucinated packages; 205,474 unique fake names (Spracklen et al. 2025, USENIX Security)</td></tr>
+</table>
+<aside>The trend is improving but it is not zero, and you cannot tell which 7 percent are wrong without checking. The package result matters for bioinformaticians: installing an LLM-suggested package name is a software supply-chain risk.</aside>
+</section>
+
+<section id="principle" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:48px">
+<p style="font-size:28px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Working principle</p>
+<h2 style="font-size:80px;font-weight:600;line-height:1.15;width:1600px">Use LLMs where errors are <span style="color:#0B5CAD">cheap to detect</span>, and design your workflow so that errors <span style="color:#0B5CAD">become</span> cheap to detect.</h2>
+<aside>This is the design goal for every workflow in the rest of the workshop. Identifiers, structured output, quotes and database checks are all ways of making errors cheap to detect.</aside>
+</section>
+
+<section id="demo1" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 1 · Crossref, PubMed</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Are these references real?</h2>
+<table style="font-size:28px;color:#1B1F24">
+<tr><th style="width:58%;text-align:left">Constructed reference</th><th style="width:20%;text-align:left">Verdict</th><th style="width:22%;text-align:left">Why</th></tr>
+<tr><td>AlphaFold (Jumper 2021), correct DOI</td><td>VERIFIED</td><td>matches Crossref</td></tr>
+<tr><td>BLAST (Altschul 1990), correct PMID</td><td>VERIFIED</td><td>matches PubMed</td></tr>
+<tr><td>Gapped BLAST title with the 1990 BLAST DOI</td><td><span style="color:#B54708">MISMATCH</span></td><td>DOI of another paper</td></tr>
+<tr><td>AlphaFold with year 2020</td><td><span style="color:#B54708">MISMATCH</span></td><td>record says 2021</td></tr>
+<tr><td>Invented DOI 10.1038/s41586-023-99999-9</td><td><span style="color:#B54708">NOT_FOUND</span></td><td>does not resolve</td></tr>
+<tr><td>Clustal Omega, title only</td><td>FOUND_BY_TITLE</td><td>PMID 21988835</td></tr>
+<tr><td>Invented title, no identifier</td><td>UNVERIFIABLE</td><td>not proof of fake</td></tr>
+</table>
+<aside>Run notebook Demo 1. Ask the room to vote on each reference before revealing verdicts. Two points: UNVERIFIABLE does not mean fake, because PubMed does not index everything. And a resolving DOI does not mean the paper supports your claim: that still needs reading.</aside>
+</section>
+
+<section id="demo2" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 2 · NCBI Gene, UniProtKB</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Gene and protein facts</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:38%;text-align:left">Claim</th><th style="width:40%;text-align:left">Database</th><th style="width:22%;text-align:left">Verdict</th></tr>
+<tr><td>TP53 protein: 393 aa</td><td>UniProt P04637: 393</td><td>supported</td></tr>
+<tr><td>CFTR protein: 1480 aa</td><td>UniProt P13569: 1480</td><td>supported</td></tr>
+<tr><td>EGFR protein: 1210 aa</td><td>UniProt P00533: 1210</td><td>supported</td></tr>
+<tr><td>BRCA1 on chromosome 13</td><td>NCBI Gene 672: 17q21.31</td><td><span style="color:#B54708">contradicted</span></td></tr>
+<tr><td>HBB on chromosome 11</td><td>NCBI Gene 3043: 11p15.4</td><td>supported</td></tr>
+<tr><td>DMD on chromosome Y</td><td>NCBI Gene 1756: Xp21.2-p21.1</td><td><span style="color:#B54708">contradicted</span></td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Ask for <b>JSON</b> and <b>identifiers</b>: verification becomes a loop, not a reading exercise.</p>
+<aside>Constructed claims first, then the live cell where the model returns JSON for eight genes. Allowing null is a feature: count abstentions separately from errors. Note that "canonical isoform" is a UniProt convention, so an under-specified question can look like an error.</aside>
+</section>
+
+<section id="verifiers" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Verifiers need verifying too</h2>
+<p style="font-size:36px;line-height:1.4;color:#57606A">A UniProt search for the gene <span style="color:#1B1F24">HTT</span> returns two reviewed human entries:</p>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:44px;border:2px solid #0B5CAD;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600">Huntingtin</h3>
+<p style="font-size:30px;line-height:1.4">P42858 · official symbol HTT · 3,142 aa</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600">Serotonin transporter</h3>
+<p style="font-size:30px;line-height:1.4">P31645 · official symbol SLC6A4 · synonym HTT · 630 aa</p>
+</div>
+</div>
+<p style="font-size:36px;line-height:1.4">Taking the first hit marks a correct answer as wrong. <b>Match on the official symbol or the accession.</b></p>
+<aside>This happened while building the workshop: an early version of the checker took the first UniProt hit and reported the correct huntingtin length as wrong. Gene symbols are ambiguous; accessions are not.</aside>
+</section>
+
+<section id="toolbox" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Part 2 · Mitigation</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Five levers, cheapest first</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:24%;text-align:left">Lever</th><th style="width:40%;text-align:left">What it means</th><th style="width:36%;text-align:left">Example</th></tr>
+<tr><td>Ask better</td><td>identifiers, JSON, “null if unsure”, neutral wording</td><td>Demo 2 prompt</td></tr>
+<tr><td>Ground</td><td>give the source text, demand exact quotes</td><td>RAG (Lewis et al. 2020); Demo 4</td></tr>
+<tr><td>Use tools</td><td>let the model query databases</td><td>GeneGPT; ChemCrow</td></tr>
+<tr><td>Measure uncertainty</td><td>sample several answers; disagreement is a warning</td><td>SelfCheckGPT; semantic entropy</td></tr>
+<tr><td>Verify</td><td>check every claim against a curated source</td><td>this notebook</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Lewis 2020 · Jin 2024 · M. Bran 2024 · Manakul 2023 · Farquhar 2024 · full list in references.md</p>
+<aside>The levers stack. Asking better costs nothing. Grounding and tools change where facts come from. Uncertainty measures tell you where to look. Verification is the final gate and is never optional for facts that go into a paper.</aside>
+</section>
+
+<section id="lookup" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Lookup beats recall</h2>
+<div style="display:flex;gap:96px;align-items:flex-end">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:200px;font-weight:700;line-height:1;color:#6E7781">0.12</p>
+<p style="font-size:32px;color:#57606A">ChatGPT, answering from memory</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:200px;font-weight:700;line-height:1;color:#0B5CAD">0.83</p>
+<p style="font-size:32px;color:#57606A">GeneGPT, calling NCBI Web APIs</p>
+</div>
+</div>
+<p style="font-size:36px;line-height:1.4;width:1500px">Average score on the GeneTuring genomics benchmark. The gain comes from <b>querying a database</b> instead of recalling.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Jin et al. 2024, GeneGPT, Bioinformatics, doi:10.1093/bioinformatics/btae075</p>
+<aside>Same benchmark, same class of model. Allowing the model to call NCBI E-utilities moved the average from 0.12 to 0.83. The lesson is not to use GeneGPT specifically; it is that database lookup beats model memory for facts.</aside>
+</section>
+
+<section id="reasoning" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Reasoning helps, but it is not an explanation</h2>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600;color:#0B5CAD">Helps</h3>
+<p style="font-size:30px;line-height:1.4">Step-by-step prompting improves multi-step tasks. Majority voting over several reasoning paths helps further.</p>
+<p style="font-size:24px;color:#57606A">Wei et al. 2022 · Wang et al. 2023</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:40px;font-weight:600;color:#B54708">But</h3>
+<p style="font-size:30px;line-height:1.4">With inputs biased toward wrong answers, models wrote plausible rationales without mentioning the bias. Accuracy fell by up to 36%.</p>
+<p style="font-size:24px;color:#57606A">Turpin et al. 2023, NeurIPS</p>
+</div>
+</div>
+<p style="font-size:36px;line-height:1.4">Treat written reasoning as a <b>draft argument to check</b>. Never accept “are you sure?” as verification.</p>
+<aside>Chain-of-thought is useful for performance. But the text is not a faithful log of the computation. Asking the same model "are you sure?" invites it to flip because of sycophancy or to double down because of snowballing.</aside>
+</section>
+
+<section id="demo3" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 3 · PubChem, RDKit</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Molecules: compare structures, not strings</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:56%;text-align:left">Claimed structure</th><th style="width:44%;text-align:left">Result (InChIKey vs PubChem)</th></tr>
+<tr><td>caffeine, paracetamol, ibuprofen</td><td>correct</td></tr>
+<tr><td>“aspirin” written as the methyl ester</td><td><span style="color:#B54708">different molecule</span></td></tr>
+<tr><td>levodopa with the wrong stereocentre (D-DOPA)</td><td><span style="color:#B54708">same skeleton, different stereo</span></td></tr>
+<tr><td><span style="font-family:'IBM Plex Mono', 'Courier New', monospace">C1=CC=CC=C1C(=O</span></td><td><span style="color:#B54708">invalid SMILES</span></td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Ask for a <b>name or PubChem CID</b>, then look the structure up. Do not ask the model to write SMILES from memory.</p>
+<aside>Identical molecules have identical InChIKeys however the SMILES is written. The first block encodes the skeleton, the second the stereochemistry, which is how the D-DOPA error is caught. Side note: PubChem renamed its SMILES fields in 2025, so code written from older documentation can request fields that no longer exist.</aside>
+</section>
+
+<section id="demo4" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 4 · GeneGPT abstract, PMID 38341654</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Quote, or it didn’t happen</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:56%;text-align:left">Extracted item</th><th style="width:44%;text-align:left">Quote check</th></tr>
+<tr><td>GeneGPT 0.83</td><td>EXACT</td></tr>
+<tr><td>new Bing 0.44</td><td>EXACT</td></tr>
+<tr><td>ChatGPT 0.21 (abstract says 0.12)</td><td><span style="color:#B54708">FUZZY 0.94: hidden change</span></td></tr>
+<tr><td>GPT-4 0.71 (not in abstract)</td><td><span style="color:#B54708">ABSENT</span></td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">A quote check proves the text exists, not that it supports the claim. It shrinks what you must read.</p>
+<aside>The extraction shown is constructed for teaching. The near-match is the dangerous case: 94 percent similar text with one changed number. Always read FUZZY items by eye.</aside>
+</section>
+
+<section id="kg" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Part 3 · Knowledge graphs</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Facts as checkable triples</h2>
+<div style="display:flex;gap:24px;align-items:center">
+<p style="font-size:36px;font-weight:600;padding:20px 32px;border:2px solid #1B1F24;border-radius:12px">imatinib</p>
+<p style="font-size:30px;color:#57606A">— physically interacts with →</p>
+<p style="font-size:36px;font-weight:600;padding:20px 32px;border:2px solid #0B5CAD;border-radius:12px;color:#0B5CAD">ABL1</p>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:32px;font-weight:600">KG-enhanced LLMs</h3><p style="font-size:28px;line-height:1.4">retrieve triples to ground or check answers</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:32px;font-weight:600">LLM-augmented KGs</h3><p style="font-size:28px;line-height:1.4">extract candidate triples from text, then verify them</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:32px;font-weight:600">Synergised</h3><p style="font-size:28px;line-height:1.4">both directions, iteratively</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Pan et al. 2024, IEEE TKDE · Examples: Wikidata, Hetionet, PrimeKG</p>
+<aside>Knowledge graphs give facts identifiers and explicit relations, which makes LLM claims checkable. The three integration patterns are from Pan et al. In Demo 5 we use the first: check claims against Wikidata.</aside>
+</section>
+
+<section id="demo5" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 5 · Wikidata, openFDA</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Imatinib: knowledge graph vs drug label</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:52%;text-align:left">Claim</th><th style="width:24%;text-align:left">Wikidata</th><th style="width:24%;text-align:left">FDA label</th></tr>
+<tr><td>interacts with ABL1</td><td>supported</td><td>—</td></tr>
+<tr><td>interacts with EGFR (not a target)</td><td>not in KG</td><td>—</td></tr>
+<tr><td>treats chronic myeloid leukemia</td><td><span style="color:#B54708">not in KG</span></td><td>listed</td></tr>
+<tr><td>treats acute myeloid leukemia</td><td><span style="color:#B54708">in KG</span></td><td>not listed</td></tr>
+<tr><td>treats gastrointestinal stromal tumor</td><td>in KG</td><td>listed</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Wikidata and openFDA queried live on 7 October 2026; the notebook re-checks both</p>
+<aside>Ph+ CML is the first indication on the FDA label, yet Wikidata did not list it. Wikidata did list AML, which is not on the label. EGFR is correctly absent. "Not in KG" therefore contains both a true claim (CML) and a false one (EGFR).</aside>
+</section>
+
+<section id="kglessons" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Three lessons</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:44px;font-weight:600;color:#0B5CAD">Absent ≠ false</h3>
+<p style="font-size:30px;line-height:1.4">Open-world assumption: “not in KG” mixes true and false claims.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:44px;font-weight:600;color:#0B5CAD">Present ≠ true</h3>
+<p style="font-size:30px;line-height:1.4">Curated and crowd-sourced graphs contain errors.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:44px;border:2px solid #D0D7DE;border-radius:16px">
+<h3 style="font-size:44px;font-weight:600;color:#0B5CAD">Context matters</h3>
+<p style="font-size:30px;line-height:1.4">“Treats” depends on approval, population, source and version. Record provenance; triangulate.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Related: Beniwal &amp; Färber, From Universal Knowledge Graphs to Contextual Semantic Contracts, ISWC 2026</p>
+<aside>Use knowledge graphs to structure and constrain LLM output, keep provenance (source, version, date), and confirm high-stakes facts in at least two independent curated sources.</aside>
+</section>
+
+<section id="inside" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Part 4 · Inside the model</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Where do facts live, and can we fix them?</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #D0D7DE;border-radius:16px"><h3 style="font-size:32px;font-weight:600">Knowledge neurons</h3><p style="font-size:26px;line-height:1.4">Neurons whose activation tracks a fact; editing them updates or erases it. <span style="color:#57606A">Dai et al. 2022, ACL</span></p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #D0D7DE;border-radius:16px"><h3 style="font-size:32px;font-weight:600">ROME</h3><p style="font-size:26px;line-height:1.4">Factual recall localised to mid-layer MLPs; a rank-one edit changes one association. <span style="color:#57606A">Meng et al. 2022, NeurIPS</span></p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #0B5CAD;border-radius:16px"><h3 style="font-size:32px;font-weight:600">Cross-lingual editing</h3><p style="font-size:26px;line-height:1.4">Editing methods show clear limits when an edit must carry across languages, especially across script families. <span style="color:#57606A">Beniwal et al., Findings of EACL 2024</span></p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #0B5CAD;border-radius:16px"><h3 style="font-size:32px;font-weight:600">Where does toxicity live?</h3><p style="font-size:26px;line-height:1.4">Localised to layers and neurons, suppressed by scaling or rank-one edits; concentrated in early MLP layers. <span style="color:#57606A">Beniwal &amp; Singh 2026, preprint</span></p></div>
+</div>
+<aside>Cross-lingual editing used BLOOM, mBERT and XLM-RoBERTa with Latin-script and Indic-script languages. The toxicity work evaluated five models, two benchmarks and 90 configurations, and found that single-evaluator setups underestimate toxicity, so one judge is not enough. Practical message: a correction made in one language may not reach the same knowledge in another.</aside>
+</section>
+
+<section id="languages" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Reliability is not language-neutral</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #0B5CAD;border-radius:16px">
+<p style="font-size:72px;font-weight:700;line-height:1;color:#0B5CAD">17</p>
+<h3 style="font-size:32px;font-weight:600">PolyGuard</h3>
+<p style="font-size:26px;line-height:1.4">Multilingual safety moderation in 17 languages; 1.91M training and 29K test samples; +5.5% over existing classifiers.</p>
+<p style="font-size:24px;color:#57606A">Kumar, …, Beniwal et al., COLM 2025</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #D0D7DE;border-radius:16px">
+<p style="font-size:72px;font-weight:700;line-height:1;color:#0B5CAD">3×</p>
+<h3 style="font-size:32px;font-weight:600">Low-resource risk</h3>
+<p style="font-size:26px;line-height:1.4">Without any attack, low-resource languages were about 3× as likely to yield harmful output.</p>
+<p style="font-size:24px;color:#57606A">Deng et al. 2024, ICLR</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:36px;border:2px solid #0B5CAD;border-radius:16px">
+<p style="font-size:72px;font-weight:700;line-height:1;color:#0B5CAD">38</p>
+<h3 style="font-size:32px;font-weight:600">Sycophancy</h3>
+<p style="font-size:26px;line-height:1.4">6 models, 1.1M instances, 38 languages: sycophancy rises sharply in low-resource languages.</p>
+<p style="font-size:24px;color:#57606A">Shah, Beniwal et al. 2026, preprint</p>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4">Demo 6: ask the same question in English, German, Czech and Hindi, and compare with NCBI Gene.</p>
+<aside>PolyGuard combines real multilingual interactions with human-verified translations of WildGuardMix and labels prompt harm, response harm and refusal. The sycophancy study identifies tokenizer fertility as a structural driver. Many of us work in German, Czech or other languages while the resources are English-first; reliability measured in English does not automatically carry over.</aside>
+</section>
+
+<section id="tools" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">In practice · Tools</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Tools worth knowing</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px">
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:30px;font-weight:600;color:#0B5CAD">Literature</h3><p style="font-size:26px;line-height:1.45">PubMed · Europe PMC · Semantic Scholar · PaperQA2 · Zotero</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:30px;font-weight:600;color:#0B5CAD">Structure</h3><p style="font-size:26px;line-height:1.45">AlphaFold DB and Server · ColabFold · Boltz · Chai-1 · ESM · Foldseek</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:30px;font-weight:600;color:#0B5CAD">Design</h3><p style="font-size:26px;line-height:1.45">ProteinMPNN · RFdiffusion · REINVENT&#160;4</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:30px;font-weight:600;color:#0B5CAD">Omics</h3><p style="font-size:26px;line-height:1.45">Biopython · Scanpy · scvi-tools · scGPT · Evo&#160;2</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:30px;font-weight:600;color:#0B5CAD">Chemistry</h3><p style="font-size:26px;line-height:1.45">RDKit · PubChem · ChEMBL · DeepChem · Chemprop · DiffDock</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;background:#F6F8FA;border-radius:16px"><h3 style="font-size:30px;font-weight:600;color:#0B5CAD">Private and local</h3><p style="font-size:26px;line-height:1.45">Ollama · LM Studio · Hugging Face Hub</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Links, licenses and descriptions, checked on 7 October 2026: 04_tools.md in the repository</p>
+<aside>All of these were checked against the projects' own sites or repositories. Check licenses before use: AlphaFold Server is for non-commercial use, and AlphaFold 3 parameters are under Google's terms of use. Some tools need a GPU; Chai-1 requires Linux and CUDA.</aside>
+</section>
+
+<section id="prompts" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">In practice · Prompting</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">A prompt that makes answers checkable</h2>
+<div style="display:flex;flex-direction:column;gap:8px;padding:40px;background:#F6F8FA;border-radius:16px;font-family:'IBM Plex Mono', 'Courier New', monospace">
+<p style="font-size:28px;line-height:1.5"><span style="color:#0B5CAD">Task:</span> Extract all reported binding affinities from the abstract below.</p>
+<p style="font-size:28px;line-height:1.5"><span style="color:#0B5CAD">Source:</span> the abstract, pasted in full</p>
+<p style="font-size:28px;line-height:1.5"><span style="color:#0B5CAD">Format:</span> JSON with keys compound, target, value, unit, quote</p>
+<p style="font-size:28px;line-height:1.5"><span style="color:#0B5CAD">Rules:</span> quote copied exactly; null if a field is not stated</p>
+<p style="font-size:28px;line-height:1.5"><span style="color:#0B5CAD">Exclude:</span> nothing from memory or other sources</p>
+</div>
+<p style="font-size:30px;line-height:1.4">Also: ask for identifiers · use neutral wording · re-run important questions · log model, version, date and prompt.</p>
+<aside>Five parts: task, source, format, uncertainty rules, exclusions. Neutral wording means asking for evidence for and against, not "explain why X is true". Templates are in the cheat sheet and the guidelines document.</aside>
+</section>
+
+<section id="safety" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">In practice · Safe use</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Using AI safely in research</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #D0D7DE;border-radius:16px"><h3 style="font-size:32px;font-weight:600;color:#0B5CAD">Data</h3><p style="font-size:26px;line-height:1.4">Genetic and health data are special categories under GDPR Art. 9(1). No patient data, unpublished results or credentials in consumer chatbots; use local or institution-approved tools.</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #D0D7DE;border-radius:16px"><h3 style="font-size:32px;font-weight:600;color:#0B5CAD">Authorship</h3><p style="font-size:26px;line-height:1.4">AI tools are not authors. Humans are accountable for all content. Disclose which tools, for what, and to what extent.</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #D0D7DE;border-radius:16px"><h3 style="font-size:32px;font-weight:600;color:#0B5CAD">Peer review</h3><p style="font-size:26px;line-height:1.4">EU: refrain from substantial use. DFG (since 16 April 2026): supporting use only, in confidential systems, disclosed.</p></div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:32px;border:2px solid #D0D7DE;border-radius:16px"><h3 style="font-size:32px;font-weight:600;color:#0B5CAD">Integrity</h3><p style="font-size:26px;line-height:1.4">Never use AI to fabricate, falsify or manipulate data. Read and test generated code; verify every package.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">EU Living guidelines, 3rd version, May 2026 · DFG statement 2023 · DFG Vordruck 4.04 (03/26) · ICMJE · GDPR Art. 9</p>
+<aside>All four boxes are taken from primary documents: the European Commission's living guidelines (third version, May 2026), the DFG statement of 2023 and its reviewer guideline in force since 16 April 2026, the ICMJE recommendations, and GDPR Article 9. Journals add their own rules; read your target journal's policy.</aside>
+</section>
+
+<section id="checklist" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Take home</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Seven rules</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px 64px">
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">1</b>  Ask for identifiers, not names.</p>
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">5</b>  Sample more than once; agreement is not proof.</p>
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">2</b>  Ask for JSON, then verify every field.</p>
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">6</b>  KG absence ≠ false; presence ≠ true.</p>
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">3</b>  Demand exact quotes; read the near-matches.</p>
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">7</b>  Report AI use like an instrument.</p>
+<p style="font-size:32px;line-height:1.35"><b style="color:#0B5CAD">4</b>  Allow abstention; count it separately.</p>
+</div>
+<aside>If you remember one thing: make claims checkable, then check them. Model, version, date, prompts and what you verified against what belong in your methods section.</aside>
+</section>
+
+<section id="report" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Reporting AI use: an illustrative methods statement</h2>
+<div style="padding:48px;border-left:6px solid #0B5CAD;background:#F6F8FA;border-radius:0 16px 16px 0">
+<p style="font-size:34px;line-height:1.5">“We used Claude Opus 5.5 (Anthropic; API; 1–14 October 2026) to extract gene–disease associations from 120 PubMed abstracts. Prompts are provided in Supplementary File S2. Every extracted association was checked for an exact supporting quote and against NCBI Gene (accessed 15 October 2026); 9 of 412 items were corrected and 14 removed. The authors take full responsibility for the content.”</p>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#57606A">Name the model and version, dates, task, where the prompts are, what was verified against which source, and what changed.</p>
+<aside>This example is illustrative; the numbers show the level of detail, not a real study. The EU guidelines recommend naming the tool, version and date, and sharing prompts and outputs where relevant.</aside>
+</section>
+
+<section id="resources" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:44px">
+<p style="font-size:28px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Everything from today</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15;font-family:'IBM Plex Mono', 'Courier New', monospace">github.com/himanshubeniwal/<br>plausible-is-not-correct</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 64px">
+<p style="font-size:30px;line-height:1.4">Notebook: runs in Google Colab, no install</p>
+<p style="font-size:30px;line-height:1.4">Cheat sheet: rules and prompt templates</p>
+<p style="font-size:30px;line-height:1.4">Workshop notes with all demo results</p>
+<p style="font-size:30px;line-height:1.4">AI research guidelines: data, authorship, review</p>
+<p style="font-size:30px;line-height:1.4">Curated tools for bio- and cheminformatics</p>
+<p style="font-size:30px;line-height:1.4">Verified references with DOIs</p>
+</div>
+<hr style="width:160px;border-top:4px solid #0B5CAD">
+<p style="font-size:36px;font-weight:600">Thank you · Himanshu Beniwal · ScaDS.AI / TU Dresden</p>
+<aside>Point participants to the repository. The Colab badge in the README opens the notebook directly. Questions.</aside>
+</section>
+
+</body></html>

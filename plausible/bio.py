@@ -5,6 +5,8 @@ curated, versioned and citable — unlike an LLM's memory.
 """
 from __future__ import annotations
 
+import re
+
 from .http import fetch
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
@@ -36,13 +38,19 @@ def ncbi_gene(symbol: str, organism: str = "Homo sapiens") -> dict | None:
 
 
 def uniprot_protein(gene: str, taxon_id: int = 9606) -> dict | None:
-    """Reviewed (Swiss-Prot) UniProt entry for a gene symbol in one organism."""
+    """Reviewed (Swiss-Prot) UniProt entry whose *primary* gene name is `gene`.
+
+    UniProt's gene_exact search also matches synonyms: "HTT" is the official symbol
+    of huntingtin but also an alias of SLC6A4 (serotonin transporter). We therefore
+    keep only the entry whose primary gene name equals the query.
+    """
     query = f"gene_exact:{gene} AND organism_id:{taxon_id} AND reviewed:true"
     data = fetch(f"{UNIPROT}/search", params={
-        "query": query, "format": "json", "size": 1,
+        "query": query, "format": "json", "size": 25,
         "fields": "accession,protein_name,gene_primary,length,mass,organism_name,cc_function,cc_subcellular_location",
     })
-    results = (data or {}).get("results", [])
+    results = [r for r in (data or {}).get("results", [])
+               if r.get("genes") and r["genes"][0].get("geneName", {}).get("value", "").upper() == gene.upper()]
     if not results:
         return None
     e = results[0]
@@ -65,12 +73,40 @@ def uniprot_protein(gene: str, taxon_id: int = 9606) -> dict | None:
     }
 
 
+def first_number(text) -> int | None:
+    """First integer in a free-text answer: '1,480 aa' -> 1480, 'Chromosom 11' -> 11.
+    Also reads non-Latin digits (e.g. Devanagari '११' -> 11)."""
+    t = re.sub(r"(?<=\d)[,.\u202f\u00a0 ](?=\d{3}\b)", "", str(text))   # drop thousands separators
+    m = re.search(r"\d+", t)
+    return int(m.group()) if m else None
+
+
+def norm_chromosome(text) -> str | None:
+    """Chromosome named in a free-text answer: 'chr17', '17q21.31', 'Chromosom 11',
+    'गुणसूत्र ११' -> '17' / '11'; 'X', 'Xp21.2', 'on the Y chromosome' -> 'X' / 'Y'."""
+    t = str(text)
+    num = re.search(r"\d+", t)
+    sex = re.search(r"(?<![A-Za-z])(?:chr)?([XxYy])(?![a-oq-zA-OQ-Z])", t)
+    if num and (not sex or num.start() < sex.start()):
+        return str(int(num.group()))
+    return sex.group(1).upper() if sex else None
+
+
 def compare(claimed, actual, kind: str = "exact", tol: float = 0.0) -> str:
-    """Tiny comparison helper returning SUPPORTED / CONTRADICTED / NO_DATA."""
+    """Compare an LLM claim with a database value: SUPPORTED / CONTRADICTED / UNPARSABLE / NO_DATA.
+    kind: "exact" (case-insensitive text), "number", "chromosome", or "contains"."""
     if actual in (None, "", []):
         return "NO_DATA"
     if kind == "number":
-        return "SUPPORTED" if abs(float(claimed) - float(actual)) <= tol else "CONTRADICTED"
+        c = first_number(claimed)
+        if c is None:
+            return "UNPARSABLE"
+        return "SUPPORTED" if abs(c - float(actual)) <= tol else "CONTRADICTED"
+    if kind == "chromosome":
+        c = norm_chromosome(claimed)
+        if c is None:
+            return "UNPARSABLE"
+        return "SUPPORTED" if c == norm_chromosome(actual) else "CONTRADICTED"
     if kind == "contains":
         return "SUPPORTED" if str(claimed).lower() in str(actual).lower() else "CONTRADICTED"
     return "SUPPORTED" if str(claimed).strip().lower() == str(actual).strip().lower() else "CONTRADICTED"

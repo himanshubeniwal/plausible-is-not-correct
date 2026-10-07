@@ -1,0 +1,14 @@
+<section id="demo5" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 5 · Wikidata, openFDA</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Imatinib: knowledge graph vs drug label</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:52%;text-align:left">Claim</th><th style="width:24%;text-align:left">Wikidata</th><th style="width:24%;text-align:left">FDA label</th></tr>
+<tr><td>interacts with ABL1</td><td>supported</td><td>—</td></tr>
+<tr><td>interacts with EGFR (not a target)</td><td>not in KG</td><td>—</td></tr>
+<tr><td>treats chronic myeloid leukemia</td><td><span style="color:#B54708">not in KG</span></td><td>listed</td></tr>
+<tr><td>treats acute myeloid leukemia</td><td><span style="color:#B54708">in KG</span></td><td>not listed</td></tr>
+<tr><td>treats gastrointestinal stromal tumor</td><td>in KG</td><td>listed</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#57606A">Wikidata and openFDA queried live on 7 October 2026; the notebook re-checks both</p>
+<aside>Ph+ CML is the first indication on the FDA label, yet Wikidata did not list it. Wikidata did list AML, which is not on the label. EGFR is correctly absent. "Not in KG" therefore contains both a true claim (CML) and a false one (EGFR).</aside>
+</section>

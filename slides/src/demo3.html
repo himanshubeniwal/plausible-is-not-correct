@@ -1,0 +1,13 @@
+<section id="demo3" style="background:#FFFFFF;color:#1B1F24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:600;color:#0B5CAD;letter-spacing:3px;text-transform:uppercase">Demo 3 · PubChem, RDKit</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.1">Molecules: compare structures, not strings</h2>
+<table style="font-size:30px;color:#1B1F24">
+<tr><th style="width:56%;text-align:left">Claimed structure</th><th style="width:44%;text-align:left">Result (InChIKey vs PubChem)</th></tr>
+<tr><td>caffeine, paracetamol, ibuprofen</td><td>correct</td></tr>
+<tr><td>“aspirin” written as the methyl ester</td><td><span style="color:#B54708">different molecule</span></td></tr>
+<tr><td>levodopa with the wrong stereocentre (D-DOPA)</td><td><span style="color:#B54708">same skeleton, different stereo</span></td></tr>
+<tr><td><span style="font-family:'IBM Plex Mono', 'Courier New', monospace">C1=CC=CC=C1C(=O</span></td><td><span style="color:#B54708">invalid SMILES</span></td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4">Ask for a <b>name or PubChem CID</b>, then look the structure up. Do not ask the model to write SMILES from memory.</p>
+<aside>Identical molecules have identical InChIKeys however the SMILES is written. The first block encodes the skeleton, the second the stereochemistry, which is how the D-DOPA error is caught. Side note: PubChem renamed its SMILES fields in 2025, so code written from older documentation can request fields that no longer exist.</aside>
+</section>

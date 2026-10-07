@@ -22,28 +22,41 @@ md("""
 
 **Herbstseminar 2026 · Himanshu Beniwal (ScaDS.AI / TU Dresden)**
 
-The pattern for every demo: **the LLM proposes, a curated database decides.**
+Every demo follows one pattern: **the LLM proposes, a curated database decides.**
 
-| # | Demo | Ground truth used |
-|---|------|-------------------|
+| # | Demo | Ground truth |
+|---|------|--------------|
 | 1 | Are these references real? | Crossref, PubMed |
-| 2 | Gene & protein facts | NCBI Gene, UniProtKB |
-| 3 | Molecules & SMILES | PubChem (+ RDKit if installed) |
-| 4 | "Quote or it didn't happen" (extraction from an abstract) | the abstract itself |
-| 5 | Knowledge graphs: supported / not in KG / wrong in KG | Wikidata (SPARQL) |
-| 6 | Self-consistency & multilingual consistency | UniProt / NCBI Gene |
+| 2 | Gene and protein facts | NCBI Gene, UniProtKB |
+| 3 | Molecules and SMILES | PubChem (and RDKit, if installed) |
+| 4 | Quote-grounded extraction from an abstract | the abstract itself |
+| 5 | Knowledge graphs: supported, missing, or wrong | Wikidata, openFDA |
+| 6 | Self-consistency and multilingual consistency | UniProtKB, NCBI Gene |
 
-**LLM backend.** `anthropic` if `ANTHROPIC_API_KEY` is set; otherwise `manual`: the notebook prints a prompt, you paste it
-into *any* chatbot and paste the answer back (end with a line `END`). Set `PLAUSIBLE_LLM=off` to skip LLM calls.
+**How the LLM cells work.** With `ANTHROPIC_API_KEY` set, they call Claude. Without a key, each cell prints a prompt:
+paste it into any chatbot, paste the answer back, and finish with a line containing only `END`.
+To skip LLM cells, set `PLAUSIBLE_LLM` to `off` in the next cell.
 
-**Offline.** All database answers are cached in `data/cache/`. Set `PLAUSIBLE_OFFLINE=1` to use only the cache.
+**Offline.** Database answers for all prepared examples are cached in `data/cache/`. Set `PLAUSIBLE_OFFLINE` to `1`
+in the next cell to use only the cache.
 """)
 
 code("""
-import os, sys, json
-sys.path.insert(0, os.path.abspath(".."))      # make the `plausible` package importable
-# os.environ["PLAUSIBLE_OFFLINE"] = "1"        # uncomment if the Wi-Fi is down
-# os.environ["PLAUSIBLE_LLM"] = "manual"       # or "anthropic" / "off"
+import os, sys, subprocess
+
+# Google Colab: fetch the workshop code once
+REPO = "https://github.com/himanshubeniwal/plausible-is-not-correct.git"
+if "google.colab" in sys.modules and not os.path.isdir("plausible-is-not-correct"):
+    subprocess.run(["git", "clone", "--depth", "1", REPO], check=True)
+
+# Make the `plausible` package importable from the notebook folder, the repo root, or Colab
+here = os.getcwd()
+ROOT = next(d for d in [here, os.path.dirname(here), os.path.join(here, "plausible-is-not-correct")]
+            if os.path.isdir(os.path.join(d, "plausible")))
+sys.path.insert(0, ROOT)
+
+# os.environ["PLAUSIBLE_OFFLINE"] = "1"    # use only cached database answers
+# os.environ["PLAUSIBLE_LLM"] = "off"      # "anthropic", "manual" or "off"
 
 import pandas as pd
 pd.set_option("display.max_colwidth", 120)
@@ -131,7 +144,7 @@ rows = []
 for gene, attr, claimed in claims:
     if attr == "chromosome":
         rec = bio.ncbi_gene(gene); actual, src = rec["chromosome"], f"NCBI Gene {rec['gene_id']} ({rec['map_location']})"
-        verdict = bio.compare(claimed, actual)
+        verdict = bio.compare(claimed, actual, kind="chromosome")
     else:
         rec = bio.uniprot_protein(gene); actual, src = rec["length_aa"], f"UniProt {rec['accession']}"
         verdict = bio.compare(claimed, actual, kind="number")
@@ -153,13 +166,18 @@ answer = llm.ask(prompt)
 if answer:
     rows = []
     for item in grounding.parse_json_block(answer):
-        g = item["gene"]; ncbi = bio.ncbi_gene(g); uni = bio.uniprot_protein(g)
+        g = item.get("gene") or item.get("symbol")
+        ncbi, uni = (bio.ncbi_gene(g), bio.uniprot_protein(g)) if g else (None, None)
+        if not ncbi or not uni:
+            rows.append({"gene": g, "chrom ok": "GENE NOT FOUND", "length ok": "GENE NOT FOUND"})
+            continue
+        chrom, length = item.get("chromosome"), item.get("length_aa")
         rows.append({
             "gene": g,
-            "chrom (LLM)": item.get("chromosome"), "chrom (NCBI)": ncbi["chromosome"],
-            "chrom ok": bio.compare(item.get("chromosome"), ncbi["chromosome"]) if item.get("chromosome") else "ABSTAINED",
-            "length (LLM)": item.get("length_aa"), "length (UniProt)": uni["length_aa"],
-            "length ok": bio.compare(item["length_aa"], uni["length_aa"], kind="number") if item.get("length_aa") else "ABSTAINED",
+            "chrom (LLM)": chrom, "chrom (NCBI)": ncbi["chromosome"],
+            "chrom ok": bio.compare(chrom, ncbi["chromosome"], kind="chromosome") if chrom else "ABSTAINED",
+            "length (LLM)": length, "length (UniProt)": uni["length_aa"],
+            "length ok": bio.compare(length, uni["length_aa"], kind="number") if length else "ABSTAINED",
         })
     display(pd.DataFrame(rows))
 """)
@@ -204,7 +222,7 @@ Return ONLY a JSON list of objects with keys: name, smiles, formula.'''
 answer = llm.ask(prompt)
 if answer:
     out = [chem.check_molecule_claim(d["name"], smiles=d.get("smiles"), formula=d.get("formula"))
-           for d in grounding.parse_json_block(answer)]
+           for d in grounding.parse_json_block(answer) if d.get("name")]
     display(pd.DataFrame(out).fillna(""))
 """)
 
@@ -338,7 +356,8 @@ md("""
 
 code("""
 q = "How many amino acids long is the canonical human CFTR protein (UniProt P13569)? Answer with the number only."
-res = llm.sample(q, n=5, normalise=lambda s: "".join(ch for ch in s if ch.isdigit()))
+n = 5 if llm.backend() == "anthropic" else 3   # fewer copy-paste rounds in manual mode
+res = llm.sample(q, n=n, normalise=lambda s: str(bio.first_number(s)))
 if res["agreement"] is not None:
     truth = bio.uniprot_protein("CFTR")["length_aa"]
     print("answers:", res["counts"], "| agreement:", res["agreement"], "| majority:", res["majority"], "| UniProt:", truth,
@@ -348,8 +367,7 @@ if res["agreement"] is not None:
 md("""
 **6b. Multilingual consistency.** The same factual question in four languages should give the same answer.
 Research on multilingual models shows that knowledge and safety behaviour **do not transfer evenly across languages**
-(e.g. cross-lingual model editing, Beniwal et al., EACL Findings 2024; multilingual safety, PolyGuard, COLM 2025).
-*(Native speakers in the room: please check the translations!)*
+(e.g. cross-lingual model editing, Beniwal et al., Findings of EACL 2024; multilingual safety, PolyGuard, COLM 2025).
 """)
 
 code("""
@@ -364,7 +382,8 @@ rows = []
 for lang, qq in questions.items():
     a = llm.ask(qq)
     if a is None: break
-    rows.append({"language": lang, "answer": a, "NCBI Gene": truth, "correct": "".join(ch for ch in a if ch.isdigit()) == truth})
+    rows.append({"language": lang, "answer": a, "NCBI Gene": truth,
+                 "verdict": bio.compare(a, truth, kind="chromosome")})
 if rows: display(pd.DataFrame(rows))
 """)
 

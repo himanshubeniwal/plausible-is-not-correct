@@ -25,7 +25,12 @@ _client = None
 
 def _anthropic(prompt: str, system: str | None, max_tokens: int) -> str:
     global _client
-    import anthropic
+    try:
+        import anthropic
+    except ImportError:
+        raise RuntimeError("ANTHROPIC_API_KEY is set but the Anthropic SDK is not installed. "
+                           "Run `pip install anthropic` (Python 3.10+), or set "
+                           "os.environ['PLAUSIBLE_LLM'] = 'manual' to paste answers from any chatbot.") from None
     if _client is None:
         _client = anthropic.Anthropic()
     kwargs = dict(model=MODEL, max_tokens=max_tokens,
@@ -40,7 +45,7 @@ def _anthropic(prompt: str, system: str | None, max_tokens: int) -> str:
     else:
         resp = _client.messages.create(**kwargs)
     if resp.stop_reason == "refusal":
-        return "[MODEL DECLINED THIS REQUEST]"
+        return "(The model declined this request.)"
     return "".join(b.text for b in resp.content if b.type == "text").strip()
 
 
