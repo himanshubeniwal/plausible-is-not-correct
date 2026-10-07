@@ -1,0 +1,9 @@
+# Core (needed for all demos)
+requests>=2.28
+pandas>=1.5
+networkx>=2.8
+jupyterlab>=3.6
+# Optional: local SMILES parsing (demos fall back to PubChem without it)
+rdkit>=2023.9
+# Optional: live LLM calls via Claude (otherwise use "manual" mode with any chatbot)
+anthropic>=1.0

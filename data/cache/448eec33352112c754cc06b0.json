@@ -1,0 +1,1 @@
+{"fetched": "2026-10-07", "method": "POST", "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/property/MolecularFormula,MolecularWeight,SMILES,ConnectivitySMILES,InChIKey,IUPACName/JSON", "params": null, "data": {"smiles": "C1=CC=CC=C1C(=O"}, "status": 400, "body": null}
